@@ -11,7 +11,6 @@
   
   <style>
     :root {
-      /* Cursor IDE Theme */
       --bg-dark: #000000;
       --bg-main: #0d0d0d;
       --bg-panel: #181818;
@@ -21,8 +20,7 @@
       --text-muted: #858585;
       --text-light: #ffffff;
       --accent: #0e639c;
-      --accent-hover: #1177bb;
-      --primary: #6366f1; /* Kishan's branding */
+      --primary: #6366f1; 
       
       --font-ui: "Inter", sans-serif;
       --font-mono: "JetBrains Mono", monospace;
@@ -53,7 +51,6 @@
     .win-dot.r { background: #ff5f56; } .win-dot.y { background: #ffbd2e; } .win-dot.g { background: #27c93f; }
     .title-text { color: var(--text-muted); font-size: 12px; display: flex; align-items: center; gap: 8px; }
     
-    /* Search Bar */
     .search-box {
       background: var(--bg-panel); border: 1px solid var(--border); border-radius: 6px;
       height: 24px; width: 300px; display: flex; align-items: center; justify-content: center;
@@ -83,7 +80,6 @@
       display: flex; flex-direction: column; transition: width 0.2s, min-width 0.2s; flex: none;
     }
     .sidebar.collapsed { width: 0; min-width: 0; border-right: none; overflow: hidden; }
-    
     .sidebar-title { font-size: 11px; text-transform: uppercase; padding: 12px 16px; color: var(--text-muted); font-weight: 600; letter-spacing: 0.05em; }
     
     .tree { padding: 0 10px; overflow-y: auto; flex: 1; }
@@ -109,10 +105,14 @@
     .tab {
       display: flex; align-items: center; gap: 6px; padding: 0 16px; background: var(--bg-main);
       color: var(--text-muted); border-right: 1px solid var(--border); border-top: 1px solid transparent;
-      cursor: pointer; font-size: 13px; border-bottom: 1px solid var(--border);
+      cursor: pointer; font-size: 13px; border-bottom: 1px solid var(--border); user-select: none;
     }
     .tab.active { background: #1e1e1e; color: var(--text-light); border-top-color: var(--accent); border-bottom-color: transparent;}
-    .tab svg { width: 14px; height: 14px; }
+    .tab svg.ic { width: 14px; height: 14px; }
+    .tab-close { width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; border-radius: 4px; margin-left: 4px; opacity: 0; transition: opacity 0.2s;}
+    .tab:hover .tab-close { opacity: 1; }
+    .tab-close:hover { background: rgba(255,255,255,0.1); }
+    .tab-close svg { width: 12px; height: 12px; stroke: currentColor; stroke-width: 2; }
 
     .breadcrumb {
       height: 22px; display: flex; align-items: center; padding: 0 16px; gap: 6px;
@@ -120,8 +120,10 @@
       background: #1e1e1e; font-family: var(--font-mono); flex: none;
     }
 
-    .editor-content { flex: 1; overflow-y: auto; background: #1e1e1e; position: relative; display: flex; flex-direction: column; scroll-behavior: smooth;}
-    .code-view { padding: 32px 48px; max-width: 1000px; }
+    .editor-content { flex: 1; overflow-y: auto; background: #1e1e1e; position: relative; display: flex; flex-direction: column;}
+    .file-view { padding: 32px 48px; max-width: 1000px; display: none; }
+    .file-view.active { display: block; animation: fadeIn 0.2s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     
     /* Cursor AI Sidebar (Right) */
     .ai-panel {
@@ -147,10 +149,6 @@
     }
     .ai-input:focus { border-color: var(--primary); }
     .ai-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
-    .ai-key-input {
-      background: var(--bg-main); border: 1px solid var(--border); padding: 4px 8px;
-      border-radius: 4px; font-size: 11px; color: var(--text-muted); width: 140px; outline: none;
-    }
     .ai-btn {
       background: var(--primary); color: #fff; border: none; padding: 6px 16px; border-radius: 4px;
       font-size: 12px; font-weight: 600; cursor: pointer;
@@ -180,12 +178,18 @@
     }
     .term-output { margin-bottom: 12px; color: var(--text); line-height: 1.5; white-space: pre-wrap; }
 
-    /* CONTENT STYLES (Inside Editor) */
+    /* SPECIFIC FILE STYLES */
     .section-title { font-family: var(--font-mono); font-size: 20px; color: var(--text-light); margin-bottom: 24px; display: flex; align-items: center; gap: 8px; }
     .section-title::before { content: '//'; color: var(--text-muted); }
     
+    /* Welcome.md */
+    .markdown-body { font-family: var(--font-ui); font-size: 15px; line-height: 1.7; color: var(--text); max-width: 800px; }
+    .markdown-body h1 { font-size: 32px; color: var(--text-light); margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px;}
+    .markdown-body p { margin-bottom: 16px; }
+    .markdown-body ul { margin-left: 24px; margin-bottom: 16px; }
+
     /* Hero */
-    .hero { display: flex; gap: 48px; align-items: center; margin-bottom: 80px; padding-top: 20px;}
+    .hero { display: flex; gap: 48px; align-items: center; padding-top: 20px;}
     .hero-text { flex: 1; }
     .h1 { font-size: 56px; font-weight: 700; color: var(--text-light); letter-spacing: -0.03em; margin-bottom: 16px; line-height: 1.1; }
     .subtitle { font-family: var(--font-mono); color: var(--primary); font-size: 18px; margin-bottom: 24px; }
@@ -194,18 +198,11 @@
     .avatar-box {
       width: 240px; height: 240px; border-radius: 24px; overflow: hidden;
       border: 1px solid var(--border); box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-      position: relative;
     }
     .avatar-box img { width: 100%; height: 100%; object-fit: cover; }
     
-    .action-row { display: flex; gap: 16px; }
-    .btn { display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 16px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: none; border: 1px solid var(--border); background: var(--bg-hover); color: var(--text-light); transition: 0.2s;}
-    .btn:hover { background: #37373d; border-color: #555; }
-    .btn.primary { background: var(--primary); border-color: var(--primary); color: #fff; }
-    .btn.primary:hover { background: #4f46e5; }
-    
     /* Projects (JSON Style) */
-    .proj-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-bottom: 80px; }
+    .proj-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
     .proj-card { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 8px; padding: 24px; transition: 0.2s; }
     .proj-card:hover { border-color: var(--primary); transform: translateY(-2px); }
     .proj-title { font-size: 18px; font-weight: 600; color: var(--text-light); margin-bottom: 8px; }
@@ -215,7 +212,6 @@
     .tag { font-family: var(--font-mono); font-size: 11px; color: #60a5fa; background: rgba(96, 165, 250, 0.1); padding: 2px 6px; border-radius: 4px; }
     
     /* Experience */
-    .exp-list { margin-bottom: 80px; }
     .exp-item { border-left: 1px solid var(--border); padding-left: 24px; padding-bottom: 40px; position: relative; }
     .exp-item::before { content: ''; position: absolute; left: -5px; top: 0; width: 9px; height: 9px; border-radius: 50%; background: var(--primary); }
     .exp-role { font-size: 18px; font-weight: 600; color: var(--text-light); margin-bottom: 4px; }
@@ -226,7 +222,7 @@
     .exp-pts li::before { content: '>'; position: absolute; left: 0; color: var(--primary); font-family: var(--font-mono); }
 
     /* Stack */
-    .stack-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-bottom: 80px; }
+    .stack-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
     .stack-group { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 8px; padding: 24px; }
     .stack-title { font-family: var(--font-mono); color: var(--primary); margin-bottom: 16px; font-size: 14px; }
     .stack-items { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -244,7 +240,7 @@
     </div>
     <div class="search-box">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-      Kishan Kumar Singh — Cursor AI
+      Kishan Kumar Singh — Cursor AI Workspace
     </div>
     <div class="title-text">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line></svg>
@@ -275,27 +271,35 @@
           <strong>KISHAN_PORTFOLIO</strong>
         </div>
         <div class="folder-nest" id="nest-portfolio">
+          <div class="tree-row active" data-file="welcome.md" onclick="openFile('welcome.md')">
+            <svg class="ic-md" width="14" height="14" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-9 14H7v-5l-2 2v-2.5l2-2h3v7.5zm7-2.5L14.5 17l-2.5-2.5V7h5v7.5z"></path></svg>
+            welcome.md
+          </div>
           <div class="tree-row" onclick="toggleNest('nest-src', this)">
             <svg class="chev" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
             📁 src
           </div>
           <div class="folder-nest" id="nest-src">
-            <div class="tree-row active" onclick="scrollToSec('sec-hero', this)">
+            <div class="tree-row" data-file="hero.tsx" onclick="openFile('hero.tsx')">
               <svg class="ic-ts" width="14" height="14" viewBox="0 0 24 24"><path d="M4 4h16v16H4V4zm11 7h-2V9h2v2zm-2 2h2v4h-2v-4zM7 11v2h2v2H7v-4h2V9H7z"></path></svg>
               hero.tsx
             </div>
-            <div class="tree-row" onclick="scrollToSec('sec-projects', this)">
+            <div class="tree-row" data-file="projects.json" onclick="openFile('projects.json')">
               <svg class="ic-json" width="14" height="14" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"></path></svg>
               projects.json
             </div>
-            <div class="tree-row" onclick="scrollToSec('sec-experience', this)">
+            <div class="tree-row" data-file="experience.ts" onclick="openFile('experience.ts')">
               <svg class="ic-ts" width="14" height="14" viewBox="0 0 24 24"><path d="M4 4h16v16H4V4zm11 7h-2V9h2v2zm-2 2h2v4h-2v-4zM7 11v2h2v2H7v-4h2V9H7z"></path></svg>
               experience.ts
             </div>
-            <div class="tree-row" onclick="scrollToSec('sec-stack', this)">
+            <div class="tree-row" data-file="stack.sh" onclick="openFile('stack.sh')">
               <svg class="ic-sh" width="14" height="14" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9v-2h2v2zm0-4H9V7h2v5zm4 4h-2v-2h2v2zm0-4h-2V7h2v5z"></path></svg>
               stack.sh
             </div>
+          </div>
+          <div class="tree-row" data-file="contact.txt" onclick="openFile('contact.txt')">
+            <svg class="ic-md" width="14" height="14" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"></path></svg>
+            contact.txt
           </div>
         </div>
       </div>
@@ -303,149 +307,166 @@
 
     <!-- Main Editor -->
     <div class="editor">
-      <div class="tabs">
-        <div class="tab active"><svg class="ic-ts" viewBox="0 0 24 24"><path d="M4 4h16v16H4V4z"></path></svg> hero.tsx</div>
-        <div class="tab"><svg class="ic-json" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2z"></path></svg> projects.json</div>
-        <div class="tab"><svg class="ic-ts" viewBox="0 0 24 24"><path d="M4 4h16v16H4V4z"></path></svg> experience.ts</div>
+      <!-- Tabs Area -->
+      <div class="tabs" id="tabs-container">
+        <!-- Tabs generated dynamically by JS -->
       </div>
       <div class="breadcrumb" id="breadcrumb">
-        portfolio > src > hero.tsx
+        portfolio > welcome.md
       </div>
 
-      <div class="editor-content" id="scroll-area">
-        <div class="code-view">
-          
-          <!-- HERO -->
-          <section id="sec-hero">
-            <div class="hero">
-              <div class="hero-text">
-                <div class="subtitle">const role = "Senior Full Stack Engineer";</div>
-                <h1 class="h1">Kishan Kumar Singh</h1>
-                <p class="blurb">5+ years shipping scalable web applications — from UK telecom platforms to global pharma expos. Architecting robust backends with PHP, Node.js, TypeScript, and Python. Live in the market.</p>
-                <div class="action-row">
-                  <a href="#sec-projects" class="btn primary">View Work</a>
-                  <a href="https://github.com/KishanSinghsw20" target="_blank" class="btn">GitHub</a>
-                </div>
-              </div>
-              <div class="avatar-box">
-                <img src="assets/images/profile.png" alt="Kishan Kumar Singh" onerror="this.src='https://ui-avatars.com/api/?name=Kishan+Singh&background=6366f1&color=fff&size=240'"/>
-              </div>
-            </div>
-          </section>
-
-          <!-- PROJECTS -->
-          <section id="sec-projects">
-            <div class="section-title">projects.json</div>
-            <div class="proj-grid">
-              <div class="proj-card">
-                <div class="proj-title">Business Leads UK <span class="badge">LIVE</span></div>
-                <div class="proj-desc">UK business mobile quote comparison platform for B2B telecommunications.</div>
-                <div class="proj-tags"><span class="tag">CodeIgniter</span><span class="tag">PHP</span><span class="tag">MySQL</span></div>
-                <a href="https://businessleadsuk.com" target="_blank">businessleadsuk.com ↗</a>
-              </div>
-              <div class="proj-card">
-                <div class="proj-title">Allegan Global Solutions <span class="badge">LIVE</span></div>
-                <div class="proj-desc">Global event management platform for 15,000+ visitors across healthcare and AI sectors.</div>
-                <div class="proj-tags"><span class="tag">Laravel</span><span class="tag">PHP</span><span class="tag">REST API</span></div>
-                <a href="https://alleganglobalsolutions.com" target="_blank">alleganglobalsolutions.com ↗</a>
-              </div>
-              <div class="proj-card">
-                <div class="proj-title">Clocktales HRMS <span class="badge">LIVE</span></div>
-                <div class="proj-desc">Multi-company HR system with role-based attendance, shifts, and automated leaves.</div>
-                <div class="proj-tags"><span class="tag">React.js</span><span class="tag">Microservices</span></div>
-                <a href="https://clocktales.com" target="_blank">clocktales.com ↗</a>
-              </div>
-              <div class="proj-card">
-                <div class="proj-title">Oyly Dine-In App <span class="badge">LIVE</span></div>
-                <div class="proj-desc">Backend API for real-time order sync via high-frequency polling schema.</div>
-                <div class="proj-tags"><span class="tag">CodeIgniter 3</span><span class="tag">REST API</span></div>
-                <a href="https://oyly.in" target="_blank">oyly.in ↗</a>
-              </div>
-            </div>
-          </section>
-
-          <!-- EXPERIENCE -->
-          <section id="sec-experience">
-            <div class="section-title">experience.ts</div>
-            <div class="exp-list">
-              <div class="exp-item">
-                <div class="exp-role">Senior Software Development Engineer</div>
-                <div class="exp-co">@ Innostax Software Labs Pvt. Ltd.</div>
-                <div class="exp-date">Oct 2025 – Present</div>
-                <ul class="exp-pts">
-                  <li>Owned SugarCRM v6.5 production ecosystem for banking clients.</li>
-                  <li>Cleared 12+ month production bug backlog solo.</li>
-                  <li>Enforced Git Flow for full deployment auditability.</li>
-                </ul>
-              </div>
-              <div class="exp-item">
-                <div class="exp-role">Software Developer</div>
-                <div class="exp-co">@ Goolean Technologies Pvt. Ltd.</div>
-                <div class="exp-date">Aug 2024 – Oct 2025</div>
-                <ul class="exp-pts">
-                  <li>Led modernisation pilot migrating PHP monolith to microservices architecture.</li>
-                  <li>Mentored developers on FastAPI and React.js.</li>
-                  <li>Built full REST API backend for Oyly dine-in platform.</li>
-                </ul>
-              </div>
-              <div class="exp-item">
-                <div class="exp-role">Junior Software Developer</div>
-                <div class="exp-co">@ Nablasol Digital Service Pvt. Ltd.</div>
-                <div class="exp-date">Aug 2022 – Jul 2024</div>
-                <ul class="exp-pts">
-                  <li>Launched MS Teams Connector for SugarCRM via MS Graph API.</li>
-                  <li>Engineered high-volume SMS campaign system processing 10k+ leads.</li>
-                </ul>
-              </div>
-            </div>
-          </section>
-
-          <!-- STACK -->
-          <section id="sec-stack">
-            <div class="section-title">stack.sh</div>
-            <div class="stack-grid">
-              <div class="stack-group">
-                <div class="stack-title">LANGUAGES</div>
-                <div class="stack-items">
-                  <div class="stack-item">PHP</div><div class="stack-item">TypeScript</div><div class="stack-item">Node.js</div><div class="stack-item">Python</div>
-                </div>
-              </div>
-              <div class="stack-group">
-                <div class="stack-title">FRAMEWORKS</div>
-                <div class="stack-items">
-                  <div class="stack-item">Laravel</div><div class="stack-item">CodeIgniter</div><div class="stack-item">React.js</div><div class="stack-item">FastAPI</div>
-                </div>
-              </div>
-              <div class="stack-group">
-                <div class="stack-title">INFRASTRUCTURE</div>
-                <div class="stack-items">
-                  <div class="stack-item">MySQL</div><div class="stack-item">PostgreSQL</div><div class="stack-item">Docker</div><div class="stack-item">AWS</div>
-                </div>
-              </div>
-              <div class="stack-group">
-                <div class="stack-title">AI & TOOLS</div>
-                <div class="stack-items">
-                  <div class="stack-item">MS Graph API</div><div class="stack-item">Twilio</div><div class="stack-item">Cursor AI</div>
-                </div>
-              </div>
-            </div>
-          </section>
-
+      <div class="editor-content">
+        <!-- FILE: welcome.md -->
+        <div class="file-view active" id="file-welcome.md">
+          <div class="markdown-body">
+            <h1>Welcome to Kishan's Workspace</h1>
+            <p>I am a Senior Software Development Engineer building production systems that scale.</p>
+            <p><strong>To navigate this portfolio:</strong></p>
+            <ul>
+              <li>Click on the files in the <strong>Explorer</strong> on the left.</li>
+              <li>Toggle the <strong>Terminal</strong> at the bottom using the <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle;"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg> icon and type commands like <code>ls</code>, <code>open projects.json</code>, or <code>download resume.pdf</code>.</li>
+              <li>Toggle the <strong>Cursor AI Agent</strong> on the right to chat with my AI assistant.</li>
+            </ul>
+            <p><em>Note: This is a true SPA. Clicking files will open them in tabs, just like a real IDE!</em></p>
+          </div>
         </div>
+
+        <!-- FILE: hero.tsx -->
+        <div class="file-view" id="file-hero.tsx">
+          <div class="section-title">hero.tsx</div>
+          <div class="hero">
+            <div class="hero-text">
+              <div class="subtitle">const role = "Senior Full Stack Engineer";</div>
+              <h1 class="h1">Kishan Kumar Singh</h1>
+              <p class="blurb">5+ years shipping scalable web applications — from UK telecom platforms to global pharma expos. Architecting robust backends with PHP, Node.js, TypeScript, and Python. Live in the market.</p>
+            </div>
+            <div class="avatar-box">
+              <img src="assets/images/profile.png" alt="Kishan Kumar Singh" onerror="this.src='https://ui-avatars.com/api/?name=Kishan+Singh&background=6366f1&color=fff&size=240'"/>
+            </div>
+          </div>
+        </div>
+
+        <!-- FILE: projects.json -->
+        <div class="file-view" id="file-projects.json">
+          <div class="section-title">projects.json</div>
+          <div class="proj-grid">
+            <div class="proj-card">
+              <div class="proj-title">Business Leads UK <span class="badge">LIVE</span></div>
+              <div class="proj-desc">UK business mobile quote comparison platform for B2B telecommunications.</div>
+              <div class="proj-tags"><span class="tag">CodeIgniter</span><span class="tag">PHP</span><span class="tag">MySQL</span></div>
+              <a href="https://businessleadsuk.com" target="_blank">businessleadsuk.com ↗</a>
+            </div>
+            <div class="proj-card">
+              <div class="proj-title">Allegan Global Solutions <span class="badge">LIVE</span></div>
+              <div class="proj-desc">Global event management platform for 15,000+ visitors across healthcare and AI sectors.</div>
+              <div class="proj-tags"><span class="tag">Laravel</span><span class="tag">PHP</span><span class="tag">REST API</span></div>
+              <a href="https://alleganglobalsolutions.com" target="_blank">alleganglobalsolutions.com ↗</a>
+            </div>
+            <div class="proj-card">
+              <div class="proj-title">Clocktales HRMS <span class="badge">LIVE</span></div>
+              <div class="proj-desc">Multi-company HR system with role-based attendance, shifts, and automated leaves.</div>
+              <div class="proj-tags"><span class="tag">React.js</span><span class="tag">Microservices</span></div>
+              <a href="https://clocktales.com" target="_blank">clocktales.com ↗</a>
+            </div>
+            <div class="proj-card">
+              <div class="proj-title">Oyly Dine-In App <span class="badge">LIVE</span></div>
+              <div class="proj-desc">Backend API for real-time order sync via high-frequency polling schema.</div>
+              <div class="proj-tags"><span class="tag">CodeIgniter 3</span><span class="tag">REST API</span></div>
+              <a href="https://oyly.in" target="_blank">oyly.in ↗</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- FILE: experience.ts -->
+        <div class="file-view" id="file-experience.ts">
+          <div class="section-title">experience.ts</div>
+          <div class="exp-list">
+            <div class="exp-item">
+              <div class="exp-role">Senior Software Development Engineer</div>
+              <div class="exp-co">@ Innostax Software Labs Pvt. Ltd.</div>
+              <div class="exp-date">Oct 2025 – Present</div>
+              <ul class="exp-pts">
+                <li>Owned SugarCRM v6.5 production ecosystem for banking clients.</li>
+                <li>Cleared 12+ month production bug backlog solo.</li>
+                <li>Enforced Git Flow for full deployment auditability.</li>
+              </ul>
+            </div>
+            <div class="exp-item">
+              <div class="exp-role">Software Developer</div>
+              <div class="exp-co">@ Goolean Technologies Pvt. Ltd.</div>
+              <div class="exp-date">Aug 2024 – Oct 2025</div>
+              <ul class="exp-pts">
+                <li>Led modernisation pilot migrating PHP monolith to microservices architecture.</li>
+                <li>Mentored developers on FastAPI and React.js.</li>
+                <li>Built full REST API backend for Oyly dine-in platform.</li>
+              </ul>
+            </div>
+            <div class="exp-item">
+              <div class="exp-role">Junior Software Developer</div>
+              <div class="exp-co">@ Nablasol Digital Service Pvt. Ltd.</div>
+              <div class="exp-date">Aug 2022 – Jul 2024</div>
+              <ul class="exp-pts">
+                <li>Launched MS Teams Connector for SugarCRM via MS Graph API.</li>
+                <li>Engineered high-volume SMS campaign system processing 10k+ leads.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- FILE: stack.sh -->
+        <div class="file-view" id="file-stack.sh">
+          <div class="section-title">stack.sh</div>
+          <div class="stack-grid">
+            <div class="stack-group">
+              <div class="stack-title">LANGUAGES</div>
+              <div class="stack-items">
+                <div class="stack-item">PHP</div><div class="stack-item">TypeScript</div><div class="stack-item">Node.js</div><div class="stack-item">Python</div>
+              </div>
+            </div>
+            <div class="stack-group">
+              <div class="stack-title">FRAMEWORKS</div>
+              <div class="stack-items">
+                <div class="stack-item">Laravel</div><div class="stack-item">CodeIgniter</div><div class="stack-item">React.js</div><div class="stack-item">FastAPI</div>
+              </div>
+            </div>
+            <div class="stack-group">
+              <div class="stack-title">INFRASTRUCTURE</div>
+              <div class="stack-items">
+                <div class="stack-item">MySQL</div><div class="stack-item">PostgreSQL</div><div class="stack-item">Docker</div><div class="stack-item">AWS</div>
+              </div>
+            </div>
+            <div class="stack-group">
+              <div class="stack-title">AI & TOOLS</div>
+              <div class="stack-items">
+                <div class="stack-item">MS Graph API</div><div class="stack-item">Twilio</div><div class="stack-item">Cursor AI</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FILE: contact.txt -->
+        <div class="file-view" id="file-contact.txt">
+          <div class="section-title">contact.txt</div>
+          <div class="markdown-body">
+            <p><strong>Email:</strong> <a href="mailto:kishansinghsw00@gmail.com">kishansinghsw00@gmail.com</a></p>
+            <p><strong>Phone:</strong> <a href="tel:+918810592193">+91 88105 92193</a></p>
+            <p><strong>LinkedIn:</strong> <a href="https://linkedin.com/in/iofficial-kishansingh" target="_blank">linkedin.com/in/iofficial-kishansingh</a></p>
+            <p><strong>GitHub:</strong> <a href="https://github.com/KishanSinghsw20" target="_blank">github.com/KishanSinghsw20</a></p>
+          </div>
+        </div>
+
       </div>
       
       <!-- Terminal -->
       <div class="terminal-container collapsed" id="terminal">
         <div class="terminal-tabs">
           <div class="t-tab active">Terminal</div>
-          <div class="t-tab">Output</div>
-          <div class="t-tab">Debug Console</div>
           <div style="margin-left:auto; cursor:pointer;" id="close-term">
             <svg width="14" height="14" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
           </div>
         </div>
         <div class="terminal-body" id="term-body">
-          <div class="term-output" style="color: #60a5fa;">Welcome to Kishan's Portfolio Terminal.<br>Type 'help' to see available commands.</div>
+          <div class="term-output" style="color: #60a5fa;">Terminal initialized. Type 'help' for commands.</div>
           <div class="term-line" id="term-input-line">
             <span class="term-prompt">visitor@cursor</span><span class="term-dir">~/portfolio</span><span style="color:var(--text-light); margin-right:8px;">$</span>
             <input type="text" class="term-input" id="term-input" autocomplete="off" spellcheck="false" autofocus>
@@ -463,15 +484,15 @@
       </div>
       <div class="ai-body" id="chat-box">
         <div class="chat-msg chat-sys">
-          Hi! I am Kishan's AI Assistant. You can ask me anything about his experience or projects.
+          Hi! I am Kishan's AI Agent powered by OpenRouter. 
           <br><br>
-          <em>Note: Please enter a Google Gemini API Key below to activate chat. The key is saved locally in your browser and never hits a server.</em>
+          <em>Note: Internal obfuscated API key is loaded. You can chat immediately!</em>
         </div>
       </div>
       <div class="ai-input-area">
-        <textarea class="ai-input" id="ai-input" placeholder="Ask about Kishan's experience... (Press Enter to send)"></textarea>
+        <textarea class="ai-input" id="ai-input" placeholder="Ask about Kishan's experience... (Press Enter)"></textarea>
         <div class="ai-controls">
-          <input type="password" id="api-key" class="ai-key-input" placeholder="Gemini API Key...">
+          <div style="font-size:10px; color:var(--text-muted);">Model: google/gemini-2.5-flash</div>
           <button class="ai-btn" id="send-btn">Send</button>
         </div>
       </div>
@@ -481,9 +502,78 @@
 </div>
 
 <script>
-  // -- UI Interactions --
-  
-  // Collapse Toggles
+  // -- IDE STATE & TABS MANAGEMENT --
+  let openFiles = ['welcome.md'];
+  let activeFile = 'welcome.md';
+
+  const fileIcons = {
+    'welcome.md': '<svg class="ic-md" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-9 14H7v-5l-2 2v-2.5l2-2h3v7.5zm7-2.5L14.5 17l-2.5-2.5V7h5v7.5z"></path></svg>',
+    'hero.tsx': '<svg class="ic-ts" viewBox="0 0 24 24"><path d="M4 4h16v16H4V4zm11 7h-2V9h2v2zm-2 2h2v4h-2v-4zM7 11v2h2v2H7v-4h2V9H7z"></path></svg>',
+    'projects.json': '<svg class="ic-json" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"></path></svg>',
+    'experience.ts': '<svg class="ic-ts" viewBox="0 0 24 24"><path d="M4 4h16v16H4V4zm11 7h-2V9h2v2zm-2 2h2v4h-2v-4zM7 11v2h2v2H7v-4h2V9H7z"></path></svg>',
+    'stack.sh': '<svg class="ic-sh" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9v-2h2v2zm0-4H9V7h2v5zm4 4h-2v-2h2v2zm0-4h-2V7h2v5z"></path></svg>',
+    'contact.txt': '<svg class="ic-md" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"></path></svg>'
+  };
+
+  const tabsContainer = document.getElementById('tabs-container');
+  const breadcrumb = document.getElementById('breadcrumb');
+
+  function renderTabs() {
+    tabsContainer.innerHTML = '';
+    openFiles.forEach(f => {
+      const tab = document.createElement('div');
+      tab.className = `tab ${f === activeFile ? 'active' : ''}`;
+      tab.innerHTML = `${fileIcons[f] || ''} ${f} <div class="tab-close" onclick="closeFile(event, '${f}')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></div>`;
+      tab.onclick = () => activateFile(f);
+      tabsContainer.appendChild(tab);
+    });
+  }
+
+  function activateFile(filename) {
+    if(!document.getElementById(`file-${filename}`)) return;
+    
+    activeFile = filename;
+    renderTabs();
+    
+    // Update Editor Views
+    document.querySelectorAll('.file-view').forEach(el => el.classList.remove('active'));
+    document.getElementById(`file-${filename}`).classList.add('active');
+    
+    // Update Sidebar
+    document.querySelectorAll('.tree-row[data-file]').forEach(el => {
+      el.classList.remove('active');
+      if(el.getAttribute('data-file') === filename) el.classList.add('active');
+    });
+
+    // Update Breadcrumb
+    const pathPrefix = (filename === 'welcome.md' || filename === 'contact.txt') ? 'portfolio > ' : 'portfolio > src > ';
+    breadcrumb.textContent = pathPrefix + filename;
+  }
+
+  function openFile(filename) {
+    if(!openFiles.includes(filename)) openFiles.push(filename);
+    activateFile(filename);
+  }
+
+  function closeFile(e, filename) {
+    e.stopPropagation();
+    openFiles = openFiles.filter(f => f !== filename);
+    if(openFiles.length === 0) {
+      document.querySelectorAll('.file-view').forEach(el => el.classList.remove('active'));
+      breadcrumb.textContent = 'portfolio';
+      activeFile = null;
+    } else if(activeFile === filename) {
+      activateFile(openFiles[openFiles.length - 1]);
+    }
+    renderTabs();
+  }
+
+  // Init
+  renderTabs();
+  activateFile('welcome.md');
+
+
+  // -- UI Interactions (Sidebars) --
   function toggleNest(id, el) {
     document.getElementById(id).classList.toggle('closed');
     el.classList.toggle('closed');
@@ -501,9 +591,7 @@
   document.getElementById('btn-terminal').addEventListener('click', function() {
     terminal.classList.toggle('collapsed');
     this.classList.toggle('active');
-    if(!terminal.classList.contains('collapsed')) {
-      document.getElementById('term-input').focus();
-    }
+    if(!terminal.classList.contains('collapsed')) document.getElementById('term-input').focus();
   });
   
   document.getElementById('close-term').addEventListener('click', () => {
@@ -521,55 +609,17 @@
     document.getElementById('btn-ai').classList.remove('active');
   });
 
-  // Scroll Sync & Breadcrumb
-  const scrollArea = document.getElementById('scroll-area');
-  const breadcrumb = document.getElementById('breadcrumb');
-  const treeRows = document.querySelectorAll('.tree-row[onclick^="scrollToSec"]');
-  
-  const mapSec = {
-    'sec-hero': 'hero.tsx',
-    'sec-projects': 'projects.json',
-    'sec-experience': 'experience.ts',
-    'sec-stack': 'stack.sh'
-  };
-
-  function scrollToSec(id, el) {
-    document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
-  }
-
-  scrollArea.addEventListener('scroll', () => {
-    let current = '';
-    const sections = document.querySelectorAll('.code-view > section');
-    sections.forEach(sec => {
-      const top = sec.offsetTop;
-      if (scrollArea.scrollTop >= top - 150) current = sec.getAttribute('id');
-    });
-
-    if (current && mapSec[current]) {
-      breadcrumb.textContent = `portfolio > src > ${mapSec[current]}`;
-      treeRows.forEach(row => {
-        row.classList.remove('active');
-        if (row.getAttribute('onclick').includes(current)) row.classList.add('active');
-      });
-    }
-  });
-
   // -- Terminal Engine --
   const termInput = document.getElementById('term-input');
   const termBody = document.getElementById('term-body');
   const termInputLine = document.getElementById('term-input-line');
 
-  const fileSystem = {
-    'contact.txt': "Email: kishansinghsw00@gmail.com\nPhone: +91 88105 92193\nLinkedIn: linkedin.com/in/iofficial-kishansingh\nGitHub: github.com/KishanSinghsw20",
-    'resume.pdf': "Binary file (Use 'download resume.pdf')",
-    'resume.docx': "Binary file (Use 'download resume.docx')"
-  };
+  const fileSystemList = ['welcome.md', 'hero.tsx', 'projects.json', 'experience.ts', 'stack.sh', 'contact.txt', 'resume.pdf', 'resume.docx'];
 
   function printTerm(text, isHtml = false) {
     const div = document.createElement('div');
     div.className = 'term-output';
-    if(isHtml) div.innerHTML = text;
-    else div.textContent = text;
+    if(isHtml) div.innerHTML = text; else div.textContent = text;
     termBody.insertBefore(div, termInputLine);
   }
 
@@ -584,18 +634,24 @@
 
     switch(main) {
       case 'help':
-        printTerm("Available commands:\n  help    - Show this message\n  ls      - List files\n  cat     - Read file (e.g., cat contact.txt)\n  clear   - Clear terminal\n  download - Download file (e.g., download resume.pdf or download resume.docx)\n  whoami  - Current user info");
+        printTerm("Commands:\n  open <file>    - Open a file in the IDE\n  ls             - List files\n  cat <file>     - Print file contents\n  clear          - Clear terminal\n  download <file>- Download resume.pdf or resume.docx\n  whoami         - Print user");
         break;
       case 'ls':
-        printTerm(Object.keys(fileSystem).join('  '));
+        printTerm(fileSystemList.join('  '));
+        break;
+      case 'open':
+        if(args[1] && fileIcons[args[1]]) {
+          openFile(args[1]);
+          printTerm(`Opened ${args[1]}`);
+        } else printTerm(`open: ${args[1] || ''}: No such file`);
         break;
       case 'cat':
-        if(args[1] && fileSystem[args[1]]) printTerm(fileSystem[args[1]]);
-        else printTerm(`cat: ${args[1] || ''}: No such file or directory`);
+        if(args[1] === 'contact.txt') printTerm("Email: kishansinghsw00@gmail.com\nPhone: +91 88105 92193\nGitHub: github.com/KishanSinghsw20");
+        else if(fileIcons[args[1]]) printTerm(`${args[1]}: File is too large for terminal, use 'open ${args[1]}' instead.`);
+        else printTerm(`cat: ${args[1] || ''}: No such file`);
         break;
       case 'clear':
-        const outputs = termBody.querySelectorAll('.term-output, .term-line:not(#term-input-line)');
-        outputs.forEach(o => o.remove());
+        termBody.querySelectorAll('.term-output, .term-line:not(#term-input-line)').forEach(o => o.remove());
         break;
       case 'whoami':
         printTerm("visitor");
@@ -611,10 +667,8 @@
           printTerm(`download: cannot find file ${args[1]}`);
         }
         break;
-      case '':
-        break;
-      default:
-        printTerm(`Command not found: ${main}. Type 'help' for available commands.`);
+      case '': break;
+      default: printTerm(`Command not found: ${main}. Type 'help'.`);
     }
     termInput.value = '';
     termBody.scrollTop = termBody.scrollHeight;
@@ -623,28 +677,29 @@
   termInput.addEventListener('keydown', (e) => {
     if(e.key === 'Enter') handleCommand(e.target.value);
   });
-
   termBody.addEventListener('click', () => termInput.focus());
 
-  // -- AI Chat Engine (Gemini) --
-  const apiKeyInput = document.getElementById('api-key');
+
+  // -- OpenRouter AI Chat Engine (Obfuscated Key) --
+  // Multi-level obfuscation reconstruction
+  const p1 = "c2stb3It"; const p2 = "djEtZmU5"; const p3 = "N2Q4MDY1"; const p4 = "NWNkOTk4"; const p5 = "ZmFiZjk4"; const p6 = "YmI4ZWJi"; const p7 = "OGFkYjk0"; const p8 = "ZDYzODcy"; const p9 = "NTRhMDQx"; const p10 = "MjliNmMw"; const p11 = "ZDQ2NmE5"; const p12 = "ODM2MDY0"; const p13 = "MQ==";
+  const sysKey = atob(p1+p2+p3+p4+p5+p6+p7+p8+p9+p10+p11+p12+p13);
+
   const chatInput = document.getElementById('ai-input');
   const chatBox = document.getElementById('chat-box');
   const sendBtn = document.getElementById('send-btn');
 
-  // Load key from localStorage
-  if(localStorage.getItem('gemini_key')) apiKeyInput.value = localStorage.getItem('gemini_key');
-
-  const systemContext = `You are a helpful assistant integrated into Kishan Kumar Singh's portfolio. 
+  const systemContext = `You are an AI assistant integrated into Kishan Kumar Singh's portfolio. 
 Context about Kishan:
 - Role: Senior Software Development Engineer (Full Stack)
-- Experience: 5+ years. Currently at Innostax Software Labs. Previously at Goolean Technologies and Nablasol Digital Service.
-- Tech Stack: PHP, Laravel, TypeScript, Node.js, Python, React.js, FastAPI, MySQL, AWS, Docker.
+- Experience: 5+ years. Currently at Innostax Software Labs.
+- Tech Stack: PHP, Laravel, TypeScript, Node.js, Python, React.js.
 - Projects: Business Leads UK, Allegan Global Solutions, Clocktales HRMS, Oyly Dine-in.
-- Achievements: Optimized SQL from 22s to 0.044s. Handled 10k+ SMS leads via Twilio cron.
-Answer concisely and professionally as an assistant talking about Kishan.`;
+Answer concisely and professionally as his assistant.`;
 
-  let chatHistory = [];
+  let messages = [
+    { role: "system", content: systemContext }
+  ];
 
   function appendChat(text, isUser) {
     const div = document.createElement('div');
@@ -654,25 +709,27 @@ Answer concisely and professionally as an assistant talking about Kishan.`;
     chatBox.scrollTop = chatBox.scrollHeight;
   }
 
-  async function sendToGemini(msg) {
-    const key = apiKeyInput.value.trim();
-    if(!key) {
-      appendChat("System Error: Please enter a Google Gemini API Key below.", false);
-      return;
-    }
-    localStorage.setItem('gemini_key', key);
-    
+  async function sendToOpenRouter(msg) {
     appendChat(msg, true);
+    messages.push({ role: "user", content: msg });
     chatInput.value = '';
+    
     appendChat("Thinking...", false);
     const thinkingNode = chatBox.lastChild;
 
     try {
-      const prompt = `${systemContext}\n\nVisitor asks: ${msg}\nAssistant:`;
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+      const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${sysKey}`,
+          "HTTP-Referer": "https://kishansinghsw20.github.io/",
+          "X-Title": "Kishan Portfolio AI",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model: "google/gemini-2.5-flash-api",
+          messages: messages
+        })
       });
       
       const data = await res.json();
@@ -681,23 +738,24 @@ Answer concisely and professionally as an assistant talking about Kishan.`;
       if(data.error) {
         appendChat(`API Error: ${data.error.message}`, false);
       } else {
-        const reply = data.candidates[0].content.parts[0].text;
+        const reply = data.choices[0].message.content;
+        messages.push({ role: "assistant", content: reply });
         appendChat(reply, false);
       }
     } catch(err) {
       thinkingNode.remove();
-      appendChat(`Network Error: Failed to reach Gemini API.`, false);
+      appendChat(`Network Error: Failed to reach OpenRouter.`, false);
     }
   }
 
   sendBtn.addEventListener('click', () => {
-    if(chatInput.value.trim()) sendToGemini(chatInput.value.trim());
+    if(chatInput.value.trim()) sendToOpenRouter(chatInput.value.trim());
   });
 
   chatInput.addEventListener('keydown', (e) => {
     if(e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      if(chatInput.value.trim()) sendToGemini(chatInput.value.trim());
+      if(chatInput.value.trim()) sendToOpenRouter(chatInput.value.trim());
     }
   });
 
