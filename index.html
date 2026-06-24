@@ -492,7 +492,7 @@
       <div class="ai-input-area">
         <textarea class="ai-input" id="ai-input" placeholder="Ask about Kishan's experience... (Press Enter)"></textarea>
         <div class="ai-controls">
-          <div style="font-size:10px; color:var(--text-muted);">Model: google/gemini-2.5-flash</div>
+          <div style="font-size:10px; color:var(--text-muted);">Model: openai/gpt-oss-120b:free</div>
           <button class="ai-btn" id="send-btn">Send</button>
         </div>
       </div>
@@ -727,7 +727,7 @@ Answer concisely and professionally as his assistant.`;
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          model: "google/gemini-2.5-flash-api",
+          model: "openai/gpt-oss-120b:free",
           messages: messages
         })
       });
